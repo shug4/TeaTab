@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BookmarkHome</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+  <!-- スタイルシート -->
+  <link rel="stylesheet" href="sanitize.css">
+  <link rel="stylesheet" href="style.css">
+  <!-- ファビコン -->
+  <link rel="shortcut icon" href="assets/bg-logos32.png" type="image/x-icon">
+</head>
+
+<body>
+
+  <!-- 背景レイヤー（グラデーション or 画像 + オーバーレイ） -->
+  <div id="bg-layer"></div>
+
+  <!-- アプリ本体 -->
+  <div id="app">
+
+    <!-- ヘッダー -->
+    <header id="header">
+      <!-- タブ一覧（JSで動的生成） -->
+      <div id="tabs-container"></div>
+      <!-- タブ追加ボタン（設定モード時のみ表示） -->
+      <button id="add-tab-btn" title="タブ追加">＋</button>
+      <!-- ヘッダー右側：検索・時計・ボタン類 -->
+      <div id="header-right">
+        <div id="search-wrap">
+          <input type="text" id="search-input" placeholder="タブを検索...">
+        </div>
+        <div id="clock"></div>
+        <!-- 表示設定パネル開閉ボタン（設定モード時のみ表示） -->
+        <button class="header-icon-btn" id="panel-btn" title="表示設定">
+          <img src="assets/menu-icon.svg" width="20" height="20" alt="表示設定">
+        </button>
+        <!-- 設定モード　ON/Off　ボタン -->
+        <button class="header-icon-btn" id="settings-btn" title="設定">
+          <img src="assets/setting-ffffff.svg" width="20" height="20" alt="設定">
+        </button>
+      </div>
+    </header>
+
+    <!-- グリッド表示エリア（タブをスライドで切り替え） -->
+    <div id="grid-outer">
+      <!-- 各タブのグリッドページを横並びで配置（JSで動的生成） -->
+      <div id="grid-track"></div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+         設定パネル（panel-btnで開閉、設定モード時のみ利用可）
+         ================================================================ -->
+  <div id="settings-panel">
+    <div class="settings-title">Settings</div>
+
+    <!-- グリッドサイズ設定 -->
+    <div class="settings-row">
+      <label>列数 (Cols)</label>
+      <input type="number" id="s-cols" min="2" max="12" value="6">
+    </div>
+    <div class="settings-row">
+      <label>行数 (Rows)</label>
+      <input type="number" id="s-rows" min="1" max="10" value="4">
+    </div>
+
+    <div class="settings-divider"></div>
+
+    <!-- 背景グラデーション選択 -->
+    <div class="settings-section-label">グラデーション</div>
+    <div id="gradient-swatches"></div>
+
+    <div class="settings-divider"></div>
+
+    <!-- 背景画像アップロード・位置調整 -->
+    <button class="settings-btn" id="bg-btn"> 背景画像を変更</button>
+    <div class="settings-row" id="bg-position-row">
+      <!-- 背景画像選択時のみ表示 -->
+      <label class="bg-pos-label">水平位置</label>
+      <input type="range" id="bg-pos-x" min="0" max="100" value="50">
+      <label class="bg-pos-label">垂直位置</label>
+      <input type="range" id="bg-pos-y" min="0" max="100" value="50">
+    </div>
+    <!-- display:none (bg-btnクリックでトリガー) -->
+    <input type="file" id="bg-upload" accept="image/*">
+
+    <!-- オーバーレイ透明度 -->
+    <div class="settings-row" id="overlay-row">
+      <label class="bg-pos-label">オーバーレイ暗さ（0〜1）</label>
+      <input type="range" id="bg-overlay" min="0" max="1" step="0.01" value="0.18">
+    </div>
+    <button class="settings-btn danger" id="bg-clear-btn">✕ 背景をクリア</button>
+
+    <!-- 文字色・ヘッダー色切り替え -->
+    <div class="settings-row">
+      <label>文字色</label>
+      <div style="display:flex; gap:6px;">
+        <button id="text-white-btn" class="settings-btn settings-btn-sm">白</button>
+        <button id="text-black-btn" class="settings-btn settings-btn-sm">黒</button>
+      </div>
+    </div>
+    <div class="settings-row">
+      <label>ヘッダー色</label>
+      <div style="display:flex; gap:6px;">
+        <button id="header-white-btn" class="settings-btn settings-btn-sm">白</button>
+        <button id="header-black-btn" class="settings-btn settings-btn-sm">黒</button>
+      </div>
+    </div>
+
+    <div class="settings-divider"></div>
+
+    <!-- データのエクスポート・インポート -->
+    <button class="settings-btn" id="export-btn">⬇ JSON エクスポート</button>
+    <button class="settings-btn" id="import-btn-trigger">⬆ JSON インポート</button>
+    <input type="file" id="import-file" accept=".json" style="display:none">
+  </div>
+
+<!-- ================================================================
+       ブックマーク追加・編集モーダル
+       ================================================================ -->
+  <div id="modal-overlay">
+    <div id="modal">
+      <h3 id="modal-title">ブックマークを追加</h3>
+      <div class="modal-field">
+        <label>URL</label>
+        <input type="url" id="modal-url" placeholder="https://example.com">
+      </div>
+      <!-- favicon自動取得プレビュー（JSで動的更新） -->
+      <div class="modal-favicon-preview" id="modal-favicon-preview"></div>
+      <!-- favicon手動アップロード -->
+      <div class="modal-field" id="favicon-upload-field">
+        <label>ファビコン画像（手動）</label>
+        <input type="file" id="modal-favicon-upload" accept="image/*">
+      </div>
+      <div class="modal-field">
+        <label>表示名</label>
+        <input type="text" id="modal-name" placeholder="サイト名">
+      </div>
+      <div class="modal-btns">
+        <button class="modal-btn cancel" id="modal-cancel">キャンセル</button>
+        <button class="modal-btn primary" id="modal-ok">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+         削除確認ダイアログ（タブ削除時に表示）
+         ================================================================ -->
+  <div id="confirm-overlay">
+    <div id="confirm-delete">
+      <h3 id="confirm-deletemsg">タブを削除しますか？</h3>
+      <p id="confirm-msg"></p>
+      <div id="confirm-deletebtn">
+        <button class="modal-btn cancel" id="confirm-cancel">キャンセル</button>
+        <button class="modal-btn primary" id="confirm-ok">削除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+         タイマー設定モーダル（ブックマークカードの⏱ボタンから開く）
+         ================================================================ -->
+  <div id="timer-overlay">
+    <div id="timer-div">
+      <h3 id="timer-h3">
+        ⏱ タイマー設定
+        <!-- タイマー設定済みの場合のみ表示 -->
+        <span id="timer-set-badge">設定済</span>
+      </h3>
+
+      <!-- 曜日・時・分の指定 -->
+      <div class="modal-field">
+        <label>曜日</label>
+        <select id="timer-day">
+          <option value="0" class="day-of-week">日曜日</option>
+          <option value="1" class="day-of-week">月曜日</option>
+          <option value="2" class="day-of-week">火曜日</option>
+          <option value="3" class="day-of-week">水曜日</option>
+          <option value="4" class="day-of-week">木曜日</option>
+          <option value="5" class="day-of-week">金曜日</option>
+          <option value="6" class="day-of-week">土曜日</option>
+        </select>
+      </div>
+
+      <div class="modal-field timer-time-row">
+        <div class="timer-time-col">
+          <label class="modal-field label">時</label>
+          <input type="number" id="timer-hour" min="0" max="23" value="9">
+        </div>
+        <div class="timer-time-col">
+          <label class="modal-field label">分</label>
+          <input type="number" id="timer-minute" min="0" max="59" value="0">
+        </div>
+      </div>
+
+      <div id="timer-btns">
+        <button class="modal-btn cancel" id="timer-cancel">キャンセル</button>
+        <button class="modal-btn cancel" id="timer-clear">削除</button>
+        <button class="modal-btn primary" id="timer-ok">保存</button>
+      </div>
+      <p id="timer-notice">
+        ⚠ タイマー機能を利用するには、ブラウザでこのサイトのポップアップとリダイレクトの許可が必要です。
+      </p>
+    </div>
+  </div>
+
+  <!-- 通知メッセージ表示用 -->
+  <div id="toast"></div>
+
+  <script src="index.js"></script>
+</body>
+
+</html>
