@@ -1,0 +1,1428 @@
+/* ===================== Root Variables ===================== */
+/* ルート変数 */
+:root {
+    /* ガラス質テクスチャ */
+    --glass-bg: rgba(255, 255, 255, 0.12);
+    --panel-bg: rgba(155, 127, 239, 0.751);
+    --modal-bg: rgba(155, 127, 239, 0.998);
+    --timer-bg: rgba(155, 127, 239, 0.998);
+    --glass-border: rgba(255, 255, 255, 0.25);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+    --glass-blur: blur(1px);
+    /*ぼかしの強さ*/
+    --card-radius: 14px;
+    /* テキスト色 */
+    --accent: rgba(255, 255, 255, 0.9);
+    --text: rgba(255, 255, 255, 0.92);
+    --text-dim: rgba(255, 255, 255, 0.55);
+    --label-color: rgba(255, 255, 255, 0.92);
+    /* タブ名*/
+    --tab-active: rgba(255, 255, 255, 0.22);
+    --tab-hover: rgba(255, 255, 255, 0.12);
+    /* その他 */
+    --danger: rgba(255, 100, 100, 0.85);
+    --add-btn: rgba(255, 255, 255, 0.18);
+    --header-h: 58px;
+    --gap: 10px;
+}
+
+/* ===================== HTML and Body ===================== */
+html,
+body {
+    width: 100%;
+    height: 100%;
+    font-family: 'Outfit', sans-serif;
+    overflow: hidden;
+    user-select: none;
+}
+
+/* ===================== Background ===================== */
+/* 背景全体を覆う固定レイヤー */
+#bg-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    /* background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); */
+    background: linear-gradient(0deg, #989898 0%, #596164);
+    background-size: cover;
+    background-position: center;
+    transition: background 0.4s;
+}
+
+/* 背景上に重ねる半透明オーバーレイ */
+#bg-layer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, var(--bg-overlay, 0.3));
+}
+
+/* ===================== App Root ===================== */
+/* アプリ全体の√コンテナ */
+#app {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 15px 0px 0px;
+}
+
+/* ===================== Header ===================== */
+/* ヘッダー全体：タブ・検索・時計・ボタンを横並びに */
+#header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0px 10px;
+    height: var(--header-h);
+    flex-shrink: 0;
+}
+
+/* タブ一覧の横スクロールコンテナ */
+#tabs-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex: 1;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+/* タブコンテナのスクロールバーを非表示 */
+#tabs-container::-webkit-scrollbar {
+    display: none;
+}
+
+/* タブボタン（非アクティブ状態） */
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    background: var(--glass-bg);
+    margin: 2px;
+    border: 1px solid var(--glass-border);
+    border-radius: 30px;
+    color: var(--label-color);
+    opacity: 0.6;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13.5px;
+    font-weight: 400;
+    cursor: pointer;
+    white-space: nowrap;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    transition: all 0.2s ease;
+    position: relative;
+    --glass-blur: blur(1px);
+}
+
+/* タブボタンのホバー状態 */
+.tab-btn:hover {
+    background: var(--tab-hover);
+    color: var(--text);
+}
+
+/* アクティブタブのハイライト */
+.tab-btn.active {
+    background: var(--tab-active);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: var(--label-color);
+    opacity: 1;
+    font-weight: 500;
+    box-shadow: 0 0 0 2px #ffc5d4;
+}
+
+/* タブ名入力欄（デフォルトは操作不可） */
+.tab-btn .tab-name-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: inherit;
+    font: inherit;
+    width: 80px;
+    cursor: text;
+    pointer-events: none;
+}
+
+/* 設定モード時のみタブ名入力可能 */
+.tab-name-input.editable {
+    pointer-events: auto;
+}
+
+/* タブ削除ボタン（設定モード時のみ表示） */
+.tab-btn .tab-del {
+    display: none;
+    width: 16px;
+    height: 16px;
+    background: var(--danger);
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 10px;
+    cursor: pointer;
+    line-height: 16px;
+    text-align: center;
+    padding: 0;
+    flex-shrink: 0;
+    transition: transform 0.15s;
+}
+
+/* タブ削除ボタンのホバー状態（拡大） */
+.tab-btn .tab-del:hover {
+    transform: scale(1.2);
+}
+
+/* 設定モード時のみタブ削除ボタンを表示 */
+body.settings-on .tab-btn .tab-del {
+    display: block;
+}
+
+/* ドラッグ中のタブを半透明にする */
+.tab-btn.tab-dragging {
+    opacity: 0.4;
+}
+
+/* カードドラッグ中にタブをホバーしたときのハイライト */
+.tab-btn.tab-drag-over {
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.22);
+}
+
+/* タブ追加ボタン（設定モード時のみ表示） */
+#add-tab-btn {
+    width: 34px;
+    height: 34px;
+    background: var(--add-btn);
+    border: 1px dashed var(--glass-border);
+    border-radius: 50%;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+/* タブ追加ボタンのホバー状態 */
+#add-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.28);
+    transform: scale(1.08);
+}
+
+/* 設定モード時のみタブ追加ボタンを表示 */
+body.settings-on #add-tab-btn {
+    display: flex;
+}
+
+/* タブドラッグ中の挿入インジケーター（前） */
+.tab-insert-before::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 20%;
+    height: 60%;
+    width: 3px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.85);
+    pointer-events: none;
+}
+
+/* タブドラッグ中の挿入インジケーター（後） */
+.tab-insert-after::after {
+    content: '';
+    position: absolute;
+    right: -5.5px;
+    top: 20%;
+    height: 60%;
+    width: 3px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.85);
+    pointer-events: none;
+}
+
+/* ドラッグ中のタブ自体を半透明にする */
+.tab-dragging {
+    opacity: 0.4;
+}
+
+/* ===================== ヘッダーダークモード（文字色・ヘッダー色を黒に切り替え） ===================== */
+/* ヘッダー右側エリア（検索・時計・ボタンをまとめる） */
+#header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* ヘッダーダークモード（ここから） */
+#header-right.header-dark #clock {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+#header-right.header-dark .header-icon-btn {
+    background: rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.2);
+    color: rgba(0, 0, 0, 0.8);
+}
+
+#header-right.header-dark .header-icon-btn:hover {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+#header-right.header-dark .header-icon-btn.active {
+    background: rgba(0, 0, 0, 0.2);
+    border-color: rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+#header-right.header-dark .header-icon-btn img {
+    filter: invert(1);
+}
+
+body.header-dark #add-tab-btn {
+    background: rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.25);
+    color: rgba(0, 0, 0, 0.7);
+}
+
+body.header-dark #add-tab-btn:hover {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+body.header-dark #search-input {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.2);
+    color: rgba(0, 0, 0, 0.8);
+}
+
+body.header-dark #search-input::placeholder {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+body.header-dark #search-input:focus {
+    border-color: rgba(0, 0, 0, 0.4);
+}
+
+/* ヘッダーダークモード（ここまで） */
+
+/* ヘッダーアイコンボタン共通スタイル */
+.header-icon-btn {
+    width: 38px;
+    height: 38px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 50%;
+    color: var(--text);
+    font-size: 17px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    transition: all 0.2s;
+}
+
+/* アイコンボタンのホバー状態 */
+.header-icon-btn:hover {
+    background: var(--tab-hover);
+    transform: scale(1.05);
+}
+
+/* 設定モードON時のsettings-btnのハイライト */
+.header-icon-btn.active {
+    background: rgba(255, 255, 255, 0.28);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
+}
+
+/* ===================== 検索ボックス ===================== */
+/* 検索ボックスのためのラッパー */
+#search-wrap {
+    flex-shrink: 0;
+}
+
+/* 検索入力ボックス */
+#search-input {
+    padding: 7px 14px;
+    width: 200px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 30px;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    outline: none;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    transition: border-color 0.2s, width 0.2s;
+}
+
+/* 検索ボックスのプレースホルダー文字色 */
+#search-input::placeholder {
+    color: var(--text-dim);
+}
+
+/* 検索ボックスフォーカス時：枠色変更・幅拡張 */
+#search-input:focus {
+    border-color: rgba(255, 255, 255, 0.5);
+    width: 260px;
+}
+
+/* 検索ボックスのレスポンシブデザイン（画面幅が900px未満のとき非表示） */
+@media screen and (max-width: 900px) {
+    #search-wrap {
+        display: none;
+    }
+}
+
+/* ===================== Clock ===================== */
+/* 時計 */
+#clock {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    flex-shrink: 0;
+}
+
+/* ===================== Grid ===================== */
+/* グリッド全体のコンテナ */
+#grid-outer {
+    flex: 1;
+    padding: 15px 7px 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* 全タブのページを横並びに並べるトラック（translateXでスライド切り替え） */
+#grid-track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+}
+
+/* タブ切り替え時の初期位置設定でアニメーションを無効化 */
+#grid-track.no-transition {
+    transition: none;
+}
+
+/* 各タブに対応する１ページ分のグリッドコンテナ */
+.grid-page {
+    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+    padding: 4px 8px 0 8px;
+}
+
+/* ===================== Settings Panel ===================== */
+/* 設定パネルのボタン（設定モード時のみ表示） */
+#panel-btn {
+    display: none;
+}
+
+/* 設定モードON時の設定パネルボタン */
+body.settings-on #panel-btn {
+    display: flex;
+}
+
+/* 設定パネル本体（ヘッダー右下に固定表示，openクラスで表示） */
+#settings-panel {
+    display: none;
+    position: fixed;
+    top: calc(var(--header-h) + 10px);
+    right: 14px;
+    width: 280px;
+    max-height: calc(100vh - var(--header-h) - 24px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    touch-action: pan-y;
+    background: var(--panel-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--card-radius);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    padding: 18px;
+    z-index: 100;
+    box-shadow: var(--glass-shadow);
+    color: var(--text);
+    font-size: 13px;
+}
+
+/* openクラスが付与されたときの設定パネル（表示） */
+#settings-panel.open {
+    display: block;
+}
+
+/* 設定パネルの"Settings"タイトル */
+.settings-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+
+/* 設定パネル内の各行（ラベルと入力を横並び） */
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+/* 設定パネル内のラベル文字スタイル */
+.settings-row label {
+    color: var(--text-dim);
+    font-size: 12.5px;
+}
+
+/* 列数・行数の数値入力欄 */
+.settings-row input[type=number] {
+    width: 60px;
+    padding: 5px 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    text-align: center;
+    outline: none;
+}
+
+/* 数値入力欄のフォーカス状態 */
+.settings-row input[type=number]:focus {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* 設定パネル内の区切り線 */
+.settings-divider {
+    height: 1px;
+    background: var(--glass-border);
+    margin: 14px 0;
+}
+
+/* 設定パネル内の汎用ボタン */
+.settings-btn {
+    width: 100%;
+    padding: 9px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+/* 設定パネル内の汎用ボタン（ホバー時） */
+.settings-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* 危険操作ボタン（背景クリアなど）の赤色スタイル */
+.settings-btn.danger {
+    border-color: rgba(255, 100, 100, 0.4);
+    color: rgba(255, 150, 150, 0.9);
+}
+
+/* 危険操作ボタン（ホバー時） */
+.settings-btn.danger:hover {
+    background: rgba(255, 100, 100, 0.2);
+}
+
+/* 文字色・ヘッダー色切り替えボタンの小サイズ調整 */
+.settings-btn-sm {
+    margin: 0;
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* ===================== Background Upload ===================== */
+/* 背景画像アップロードのfile input（非表示．bg-btnからトリガー） */
+#bg-upload {
+    display: none;
+}
+
+/* 背景位置調整行（背景画像選択時のみ表示） */
+#bg-position-row {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+}
+
+/* 背景位置スライダーのラベル */
+.bg-pos-label {
+    color: var(--text-dim);
+    font-size: 12.5px;
+}
+
+/* 背景画像の水平・垂直位置スライダー */
+#bg-pos-x,
+#bg-pos-y {
+    width: 100%;
+    accent-color: rgba(255, 255, 255, 0.7);
+}
+
+/* オーバーレイ暗さ調節 */
+#overlay-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+}
+
+/* オーバーレイ暗さスライダー */
+#bg-overlay {
+    width: 100%;
+    accent-color: rgba(255, 255, 255, 0.7);
+}
+
+/* グラデーション選択UI */
+.settings-section-label {
+    color: var(--text-dim);
+    font-size: 12.5px;
+    margin-bottom: 8px;
+}
+
+/* グラデーションスウォッチのラッパー */
+#gradient-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+/* グラデーション選択ボタン（円形カラーチップ） */
+.grad-swatch {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    outline: none;
+    transition: transform 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+}
+
+/* スウォッチのホバー時に拡大 */
+.grad-swatch:hover {
+    transform: scale(1.15);
+}
+
+/* 選択中のスウォッチのハイライト */
+.grad-swatch.active {
+    border-color: rgba(255, 255, 255, 0.9);
+    transform: scale(1.1);
+}
+
+/* ===================== Bookmark Card ===================== */
+/* ブックマークカードのガラス質スタイル */
+.bm-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--card-radius);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    box-shadow: var(--glass-shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    cursor: pointer;
+    transition: transform 0.18s ease, background 0.18s, box-shadow 0.18s;
+    position: relative;
+    overflow: hidden;
+    padding: 8px 6px;
+    text-decoration: none;
+}
+
+/* カード上部の光沢グラデーション */
+.bm-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+/* ホバー時のカード効果（浮き上がる） */
+.bm-card:hover {
+    transform: translateY(-3px) scale(1.03);
+    background: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 12px 18px rgba(0, 0, 0, 0.28);
+}
+
+/* クリック時のカード効果（縮小） */
+.bm-card:active {
+    transform: scale(0.97);
+}
+
+/* favicon画像 */
+.bm-favicon {
+    width: var(--card-favicon-size, 32px);
+    height: var(--card-favicon-size, 32px);
+    border-radius: 8px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+/* favicon取得失敗時の頭文字フォールバック */
+.bm-favicon-fallback {
+    width: var(--card-favicon-size, 32px);
+    height: var(--card-favicon-size, 32px);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* font-size: 15px; */
+    font-size: calc(var(--card-favicon-size, 40px) * 0.375);
+    color: var(--text);
+    flex-shrink: 0;
+}
+
+/* faviconカスタム削除ボタン */
+.favicon-clear-btn {
+    background: var(--danger);
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 11px;
+    cursor: pointer;
+    padding: 3px 8px;
+    flex-shrink: 0;
+    transition: opacity 0.15s;
+}
+
+.favicon-clear-btn:hover {
+    transform: scale(1.05);
+}
+
+/* カードのサイト名テキスト */
+.bm-name {
+    font-size: var(--card-font-size, 11.5px);
+    font-weight: 400;
+    color: var(--label-color);
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.2;
+    padding: 0 4px;
+}
+
+/* カードアクションボタン（設定モード時のホバーで表示） */
+.bm-actions {
+    display: none;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    gap: 3px;
+}
+
+/* 設定モード時にアクションボタンを表示 */
+body.settings-on .bm-card:hover .bm-actions {
+    display: flex;
+}
+
+/* アクションボタン共通スタイル（タイマー・編集・削除） */
+.bm-action-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s;
+    line-height: 1;
+}
+
+/* 編集ボタン（青色） */
+.bm-edit-btn {
+    background: rgba(100, 180, 255, 0.7);
+    color: #fff;
+}
+
+/* 削除ボタン（赤色） */
+.bm-del-btn {
+    background: var(--danger);
+    color: #fff;
+}
+
+/* レスポンシブ：狭い画面（600px以下）でアクションボタンを縮小 */
+@media screen and (max-width: 600px) {
+    .bm-action-btn {
+        width: 20px;
+        height: 20px;
+        font-size: 10px;
+    }
+}
+
+/* レスポンシブ：さらに狭い画面（400px以下）でアクションボタンを立て並びに */
+@media screen and (max-width: 400px) {
+    .bm-actions {
+        flex-direction: column;
+    }
+}
+
+/* アクションボタンのホバー時に拡大 */
+.bm-action-btn:hover {
+    transform: scale(1.15);
+}
+
+/* ===================== Timer Modal ===================== */
+/* タイマーボタン（緑色） */
+.bm-timer-btn {
+    background: rgba(100, 220, 160, 0.7);
+    color: #fff;
+}
+
+/* タイマーモーダルの表示（openクラス付与時） */
+#timer-overlay.open {
+    display: flex;
+}
+
+/* タイマーモーダルのダイアログ本体 */
+#timer-div {
+    width: 320px;
+    background: var(--timer-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    padding: 26px 24px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+    color: var(--text);
+    animation: modalIn 0.22s ease;
+}
+
+/* タイマーモーダルのタイトル（設定済みバッジと横並び） */
+#timer-h3 {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* タイマーモーダルのオーバーレイ */
+#timer-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    align-items: center;
+    justify-content: center;
+}
+
+/* タイマーバッジ（左上に緑色のドットバッジ） */
+.timer-badge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(100, 220, 160, 0.9);
+    box-shadow: 0 0 6px rgba(100, 220, 160, 0.7);
+}
+
+/* タイマーセットバッジ（タイトル横の"設定済み"バッジ） */
+#timer-set-badge {
+    display: none;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(100, 220, 160, 0.3);
+    border: 1px solid rgba(100, 220, 160, 0.6);
+    color: rgba(255, 255, 255, 0.95);
+    letter-spacing: 0.5px;
+}
+
+/* タイマー設定済みの場合（"設定済み"バッジを表示） */
+#timer-set-badge.visible {
+    display: inline-block;
+}
+
+/* 曜日セレクトボックス */
+#timer-day {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--timer-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+/* 曜日選択用のオプション */
+.day-of-week {
+    background: rgb(60, 40, 120);
+    color: #fff;
+}
+
+/* 時入力フィールド */
+#timer-hour {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+}
+
+/* 分入力フィールド */
+#timer-minute {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+}
+
+/* タイマークリアボタン（赤色） */
+#timer-clear {
+    border-color: rgba(255, 100, 100, 0.5);
+    color: rgba(255, 150, 150, 0.9);
+}
+
+/* 時・分の入力欄を横並びにする */
+.timer-time-row {
+    display: flex;
+    gap: 12px;
+}
+
+/* 時・分の各カラム */
+.timer-time-col {
+    flex: 1;
+}
+
+/* タイマーボタン（キャンセル・削除・保存） */
+#timer-btns {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+/* タイマーモーダル下部の注意書きテキスト（ポップアップの許可） */
+#timer-notice {
+    margin-top: 14px;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 1.6;
+}
+
+/* ===================== Empty Cell ===================== */
+/* ブックマークのない空きセル */
+.empty-cell {
+    border-radius: var(--card-radius);
+    border: 1px dashed transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.2);
+    font-size: 22px;
+    cursor: default;
+    transition: all 0.2s;
+}
+
+/* 設定モード時：空きセルをクリック可能にする */
+body.settings-on .empty-cell {
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* 設定モード時：空きセルにホバー（枠と背景をハイライト） */
+body.settings-on .empty-cell:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* ===================== Drag ===================== */
+/* ドラッグ中のカード（半透明・縮小表示） */
+.bm-card.dragging {
+    opacity: 0.45;
+    transform: scale(0.95);
+}
+
+/* ドラッグのドロップ先のカードのハイライト */
+.bm-card.drag-over {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* ドラッグのドラップ先の空きセルのハイライト */
+.empty-cell.drag-over {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* ===================== Modal ===================== */
+/* モーダルのオーバーレイ背景（デフォルト非表示） */
+#modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+}
+
+/* openクラスが付与されたときに表示 */
+#modal-overlay.open {
+    display: flex;
+}
+
+/* ブックマーク追加・編集モーダルの本体 */
+#modal {
+    width: 360px;
+    background: var(--modal-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    padding: 26px 24px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+    color: var(--text);
+    animation: modalIn 0.22s ease;
+}
+
+/* モーダルの出現アニメーション（フェードイン＋スライドアップ） */
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* モーダルのタイトルテキスト */
+#modal h3 {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    color: var(--text);
+}
+
+/* モーダル内の各入力フィールド */
+.modal-field {
+    margin-bottom: 14px;
+}
+
+/* フィールドのラベル（大文字・等幅フォント） */
+.modal-field label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 5px;
+    font-family: 'Space Mono', monospace;
+}
+
+/* フィールドの入力欄 */
+.modal-field input {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+/* 入力欄のフォーカス状態 */
+.modal-field input:focus {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* 入力欄のプレースホルダー文字色 */
+.modal-field input::placeholder {
+    color: var(--text-dim);
+}
+
+/* faviconプレビューエリア */
+.modal-favicon-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+    min-height: 24px;
+    font-size: 12px;
+    color: var(--text-dim);
+}
+
+/* faviconプレビューエリア内の画像（サイズ・角丸） */
+.modal-favicon-preview img {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+}
+
+/* faviconの手動アップロード用file input */
+#modal-favicon-upload {
+    background: transparent;
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+    padding: 8px;
+    border-radius: 10px;
+    color: var(--text);
+    width: 100%;
+    cursor: pointer;
+}
+
+/* モーダル下部のボタン（キャンセル・保存） */
+.modal-btns {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+/* モーダルボタン共通スタイル */
+.modal-btn {
+    flex: 1;
+    padding: 11px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s;
+}
+
+/* 保存ボタン（白透明） */
+.modal-btn.primary {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 保存ボタン（ホバー時） */
+.modal-btn.primary:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* キャンセルボタン（透明） */
+.modal-btn.cancel {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* キャンセルボタン（ホバー時） */
+.modal-btn.cancel:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text);
+}
+
+/* ===================== Confirm Modal ===================== */
+/* 削除確認ダイアログのオーバーレイ（デフォルト非表示） */
+#confirm-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+}
+
+/* openクラスが付与されたときに表示 */
+#confirm-overlay.open {
+    display: flex;
+}
+
+/* 削除確認ダイアログの本体 */
+#confirm-delete {
+    width: 320px;
+    background: rgba(18, 18, 35, 0.92);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    padding: 26px 24px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+    color: var(--text);
+    animation: modalIn 0.22s ease;
+}
+
+/* キャンセル・削除ボタンの行 */
+#confirm-deletebtn {
+    display: flex;
+    gap: 8px;
+}
+
+/* "タブを削除しますか？"テキスト */
+#confirm-deletemsg {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+/* 削除確認メッセージ */
+#confirm-msg {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+}
+
+/* 削除OKボタン（赤色） */
+#confirm-ok {
+    border-color: rgba(255, 100, 100, 0.5);
+    color: rgba(255, 150, 150, 0.9);
+}
+
+/* == copy and paste == */
+/* ── Context Menu ── */
+/* 右クリックコンテキストメニュー */
+#context-menu {
+    position: fixed;
+    z-index: 1000;
+    background: rgba(30, 30, 40, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 4px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    min-width: 120px;
+}
+
+/* コンテキストメニューの各ボタン */
+#context-menu button {
+    display: block;
+    width: 100%;
+    padding: 8px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+}
+
+/* コンテキストメニューボタンのホバー */
+#context-menu button:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* ===================== Toast ===================== */
+/* トースト通知（画面下部中央に固定．デフォルトは非表示） */
+#toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(20, 20, 40, 0.9);
+    border: 1px solid var(--glass-border);
+    border-radius: 30px;
+    padding: 10px 22px;
+    color: var(--text);
+    font-size: 13px;
+    backdrop-filter: blur(16px);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    z-index: 300;
+    white-space: nowrap;
+}
+
+/* showクラスが付与されたときに表示 */
+#toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/*長時間表示トースト（インポート時ポップアップブロックのオン警告用）*/
+#toast.toast-warning {
+    background: rgba(255, 40, 40, 0.92);
+}
+
+/*=========*/
+/* スーパーバイザーパネルボタン（スーパーバイザー＋設定モード時のみ表示） */
+#supervisor-panel-btn {
+    display: none;
+}
+
+body.settings-on.supervisor-on #supervisor-panel-btn {
+    display: flex;
+}
+
+/* ===================== Supervisor Panel ===================== */
+/* スーパーバイザーパネル本体（設定パネルと同じスタイルベース） */
+#supervisor-panel {
+    position: fixed;
+    top: 70px;
+    right: -320px;
+    width: 280px;
+    background: rgba(18, 18, 35, 0.92);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 20px;
+    z-index: 150;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: right 0.3s ease;
+    color: var(--text);
+}
+
+#supervisor-panel.open {
+    right: 12px;
+}
+
+#settings-panel.open~#supervisor-panel.open {
+    right: 300px;
+}
+
+#supervisor-content {
+    font-size: 15px;
+    margin-top: 8px;
+}
+
+/* localStorage使用量バー */
+#sv-storage-bar-wrap {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+
+#sv-storage-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s ease, background 0.4s ease;
+}
+
+#sv-storage-text {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+    font-family: 'Space Mono', monospace;
+}
+
+/* 統計行 */
+.sv-stat-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.75);
+    padding: 4px 0;
+    font-family: 'Space Mono', monospace;
+}
+
+/* スーパーバイザーパネル内のスライダー */
+#supervisor-panel {
+    position: fixed;
+    top: 70px;
+    right: -320px;
+    width: 280px;
+    max-height: calc(100vh - var(--header-h) - 24px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    touch-action: pan-y;
+    background: rgba(18, 18, 35, 0.92);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 20px;
+    z-index: 150;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: right 0.3s ease;
+    color: var(--text);
+}
+
+#supervisor-panel input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    outline: none;
+    padding: 0;
+    margin: 8px 0;
+}
+
+#supervisor-panel input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #989898;
+    cursor: pointer;
+}
+
+#supervisor-panel input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #000;
+    cursor: pointer;
+    border: none;
+}
+
+/* スーパーバイザーパネルの表示切り替え行のラベル */
+#sv-toggle-search,
+#sv-toggle-clock {
+    flex-shrink: 0;
+}
+
+#supervisor-panel .settings-row label {
+    white-space: nowrap;
+}
+
+/* スーパーバイザーパネルの表示切り替えボタン */
+#sv-toggle-search,
+#sv-toggle-clock {
+    flex-shrink: 0;
+    width: 120px;
+    height: 30px;
+    padding: 4px 10px;
+    font-size: 11px;
+    margin-bottom: 0;
+}
